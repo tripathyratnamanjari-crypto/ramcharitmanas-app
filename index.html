@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ରାମଚରିତମାନସ ମୋବାଇଲ ଆପ୍</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .sticky-display { position: sticky; top: 0; z-index: 50; }
+        .active-card { border-left: 5px solid #ea580c; background-color: #fff7ed; }
+    </style>
+</head>
+<body class="bg-amber-50/30 pb-20">
+
+    <nav class="bg-orange-600 p-4 shadow-md text-white flex justify-between items-center">
+        <h1 class="font-bold text-lg tracking-wide">ଶ୍ରୀ ରାମଚରିତମାନସ</h1>
+        <span class="text-[10px] bg-orange-700 px-2 py-1 rounded-full font-bold">ଓଡ଼ିଆ ସଂସ୍କରଣ</span>
+    </nav>
+
+    <div class="sticky-display bg-white shadow-md border-b border-orange-100 p-4">
+        <div id="welcomePlaceholder" class="text-center text-stone-400 py-4 text-xs font-medium">
+            🚩 ତଳେ ଥିବା ଯେକୌଣସି ପଦ ଉପରେ କ୍ଲିକ୍ କରି ଅର୍ଥ ପଢନ୍ତୁ।
+        </div>
+        <div id="viewerContent" class="hidden space-y-2">
+            <div class="flex justify-between items-center text-[10px] font-bold text-orange-600">
+                <span id="viewSection">Section</span>
+                <span id="viewType" class="bg-orange-100 px-2 py-0.5 rounded uppercase">Type</span>
+            </div>
+            <p id="viewVerse" class="text-md font-bold text-slate-800 text-center bg-amber-50/50 p-3 rounded-xl border border-amber-100 whitespace-pre-line leading-relaxed"></p>
+            <div class="mt-2 pt-2 border-t border-dashed border-slate-200">
+                <span class="text-xs font-bold text-amber-800 block">ସହଜ ଓଡ଼ିଆ ଅର୍ଥ:</span>
+                <p id="viewMeaning" class="text-sm text-slate-600 font-medium leading-relaxed mt-0.5"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4">
+        <div class="relative">
+            <input type="text" id="appSearchInput" onkeyup="runLiveSearch()" placeholder="ଶ୍ଳୋକ କିମ୍ବା ଅର୍ଥ ମଧ୍ୟରୁ ଖୋଜନ୍ତୁ..." 
+                   class="w-full p-3.5 pl-11 rounded-2xl bg-white border border-orange-100 shadow-xs focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+            <span class="absolute left-4 top-3.5 opacity-40">🔍</span>
+        </div>
+    </div>
+
+    <div class="px-4">
+        <div id="versesDeck" class="space-y-3">
+            <p class="text-center text-stone-400 text-sm py-8">ଡାଟା ଲୋଡ୍ ହେଉଛି...</p>
+        </div>
+    </div>
+
+    <script>
+        let fullManasDatabase = [];
+
+        // Fetches data cleanly from the local json file
+        async function fetchDatabase() {
+            try {
+                const response = await fetch('./manas_data.json');
+                fullManasDatabase = await response.json();
+                displayVerses(fullManasDatabase);
+            } catch (err) {
+                document.getElementById('versesDeck').innerHTML = `
+                    <p class="text-center text-red-500 text-xs font-bold py-8">
+                        ⚠️ Error: Make sure 'manas_data.json' is created in your repository folder!
+                    </p>`;
+            }
+        }
+
+        // Loops and builds responsive screen cards
+        function displayVerses(data) {
+            const container = document.getElementById('versesDeck');
+            container.innerHTML = "";
+
+            if(data.length === 0) {
+                container.innerHTML = `<p class="text-center text-stone-400 py-8 text-xs">କୌଣସି ପଦ ମିଳିଲା ନାହିଁ।</p>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.id = `v-card-${item.id}`;
+                card.className = "bg-white p-4 rounded-xl border border-stone-100 shadow-xs flex flex-col justify-between active:scale-[0.99] transition-transform cursor-pointer";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[9px] font-bold text-slate-400 truncate max-w-[200px]">${item.section}</span>
+                        <span class="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">${item.type}</span>
+                    </div>
+                    <p class="font-bold text-slate-700
+                    
